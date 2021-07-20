@@ -1,0 +1,13 @@
+[submodule "awsm"]
+	path = aWsm
+	url = git@github.com:gwsystems/aWsm.git
+[submodule "wamr"]
+	path = wasm-micro-runtime
+	url = https://github.com/bytecodealliance/wasm-micro-runtime.git
+[submodule "wavm"]
+	path = WAVM
+	url = https://github.com/WAVM/WAVM.git
+[submodule "sod"]
+	path = sod
+	url = git@github.com:gwsystems/sod.git
+	branch = sledge
