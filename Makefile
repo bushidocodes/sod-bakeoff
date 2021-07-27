@@ -19,7 +19,7 @@ prep_wavm_cache:
 	mkdir -p wavm_cache
 
 ./aWsm/target/release/awsm:
-	cd aWsm && ./install_deb.sh
+	cd aWsm && cargo build --release
 
 clean:
 	rm -rf resize resize.wasm resize.bc resize_vm resize.jpg res
