@@ -9,7 +9,10 @@ WASM_FLAGS:=--target=wasm32-wasi -mcpu=mvp ${OPTFLAGS} --sysroot=${WASI_SDK_SYSR
 WASM_LINKER_FLAGS:=-Wl,--threads=1,-z
 
 ./wasm-micro-runtime/product-mini/platforms/linux/build/iwasm:
-	cd wasm-micro-runtime && cmake -DWAMR_BUILD_PLATFORM=linux -DWAMR_BUILD_TARGET=X86_64 && cd product-mini/platforms/linux/ && mkdir build && cd build && cmake .. && make
+	cd wasm-micro-runtime && cmake -DWAMR_BUILD_PLATFORM=linux -DWAMR_BUILD_TARGET=X86_64 && cd product-mini/platforms/linux/ && mkdir -p build && cd build && cmake .. && make
+
+./wasm-micro-runtime/wamr-compiler/build/wamrc:
+	cd wasm-micro-runtime/wamr-compiler && ./build_llvm.sh && mkdir -p build && cd build && cmake .. && make
 
 ./WAVM/bin/wavm:
 	cd WAVM && cmake . && make 
@@ -52,7 +55,7 @@ resize.wamr:
 	./wasm-micro-runtime/wamr-compiler/build/wamrc -o resize.wamr ./resize.wasm
 
 .PHONY: bench
-bench: ./wasm-micro-runtime/product-mini/platforms/linux/build/iwasm ./WAVM/bin/wavm resize.wasm resize.wavm prep_wavm_cache resize_vm resize
+bench: ./wasm-micro-runtime/wamr-compiler/build/wamrc ./wasm-micro-runtime/product-mini/platforms/linux/build/iwasm ./WAVM/bin/wavm resize.wasm resize.wavm prep_wavm_cache resize_vm resize
 	mkdir -p res
 	WAVM_OBJECT_CACHE_DIR=${ROOT_PATH}/wavm_cache \
 	hyperfine --warmup 3 --export-markdown results.md \
