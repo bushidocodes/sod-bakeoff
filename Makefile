@@ -25,7 +25,7 @@ prep_wavm_cache:
 	cd aWsm && cargo build --release
 
 clean:
-	rm -rf resize resize.wasm resize.bc resize_vm resize.jpg res
+	rm -rf resize resize.wasm resize.wamr resize.wavm resize.bc resize_vm resize.jpg res
 
 resize.wasm: ./sod/sod.c ./sod/samples/resize_image.c
 	${WASM_CC} ${WASM_FLAGS} ${WASM_LINKER_FLAGS} -D_WASI_EMULATED_MMAN -lwasi-emulated-mman -lm -I./sod -Wall ./sod/sod.c ./sod/samples/resize_image.c -o resize.wasm
@@ -55,13 +55,13 @@ resize.wamr:
 	./wasm-micro-runtime/wamr-compiler/build/wamrc -o resize.wamr ./resize.wasm
 
 .PHONY: bench
-bench: ./wasm-micro-runtime/wamr-compiler/build/wamrc ./wasm-micro-runtime/product-mini/platforms/linux/build/iwasm ./WAVM/bin/wavm resize.wasm resize.wavm prep_wavm_cache resize_vm resize
+bench: ./wasm-micro-runtime/wamr-compiler/build/wamrc ./wasm-micro-runtime/product-mini/platforms/linux/build/iwasm ./WAVM/bin/wavm resize.wasm prep_wavm_cache resize.wavm resize.wamr resize_vm resize
 	mkdir -p res
 	WAVM_OBJECT_CACHE_DIR=${ROOT_PATH}/wavm_cache \
 	hyperfine --warmup 3 --export-markdown results.md \
 	-n wasmtime 'wasmtime resize.wasm <./sod/samples/flower.jpg >./res/resize_wasmtime.jpg' \
 	-n wavm './WAVM/bin/wavm run resize.wavm <./sod/samples/flower.jpg >./res/resize_wavm.jpg' \
-	-n wamr './wasm-micro-runtime/product-mini/platforms/linux/build/iwasm resize.wamr <./sod/samples/flower.jpg >./res/resize_wamr.jpg' \
+	-n wamr './wasm-micro-runtime/product-mini/platforms/linux/build/iwasm ./resize.wamr <./sod/samples/flower.jpg >./res/resize_wamr.jpg' \
 	-n awsm './resize_vm <./sod/samples/flower.jpg >./res/resize_awsm.jpg' \
 	-n native './resize <./sod/samples/flower.jpg >./res/resize_native.jpg'
 	pandoc -o results.pdf results.md 
